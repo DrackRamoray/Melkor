@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "useDefineForClassFields": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "jsx": "preserve",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "lib": ["esnext", "dom"],
+    "types": ["@dcloudio/types"],
+    "paths": {
+      "@/tmui": ["./packages/tmui"],
+      "@/mogos": ["./packages/mogos"],
+      "@/pages.json": ["./src/pages.json"]
+    }
+  },
+  "include": [
+    "./src/*.vue",
+    "./src/**/*.vue",
+    "./src/*.nvue",
+    "./src/**/*.nvue",
+    "./src/*.ts",
+    "./src/*.d.ts",
+    "./src/**/*.ts",
+    "./packages/mogos/*.ts",
+    "./packages/mogos/*.vue"
+    ]
+}
