@@ -38,13 +38,13 @@ const useAppointment = (props: Props) => {
 
   const occupiedRanges = computed(() => mergeRanges(props.occupied));
 
-  const invalidRanges = computed(() => getInvalidRanges(
+  const invalidRanges = computed(() => props.mode === WorkMode.Edit ? getInvalidRanges(
     props.selectedDate,
     times.value,
     props.endTime,
     occupiedRanges.value,
     props.invalid,
-  ));
+  ) : mergeRanges(props.invalid));
 
   const itemHeight = computed(() => `${props.height}rpx`);
 

@@ -83,11 +83,8 @@ interface Props {
   selectedTimes: TimeRange;
   mode?: WorkMode;
   title?: string;
-  // eslint-disable-next-line vue/require-default-prop
   startDate?: string;
-  // eslint-disable-next-line vue/require-default-prop
   endDate?: string;
-  // eslint-disable-next-line vue/require-default-prop
   weekType?: WeekType;
   startTime?: HourAndMinute;
   endTime?: HourAndMinute;
@@ -109,7 +106,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  mode: WorkMode.Edit,
+  mode: WorkMode.View,
   title: '预约',
   startTime: '08:00',
   endTime: '23:00',
