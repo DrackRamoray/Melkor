@@ -25,7 +25,10 @@
     "./src/*.ts",
     "./src/*.d.ts",
     "./src/**/*.ts",
-    "./packages/mogos/*.ts",
-    "./packages/mogos/*.vue"
-    ]
+    "./packages/mogos/**/*.ts",
+    "./packages/mogos/**/*.vue",
+    ],
+  "exclude": [
+    "./packages/mogos/**/node_modules"
+  ]
 }

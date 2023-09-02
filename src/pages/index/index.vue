@@ -31,8 +31,6 @@ const openDrawer = () => {
 
 const selectDate = () => {
   console.log('|>> select date ....', selectedDate.value, Math.floor(Math.random() * 10) % 2);
-  occupied.value = Math.floor(Math.random() * 10) % 2 === 0 ? [['08:15', '11:35']] : [['13:15', '14:01']];
-  invalid.value = Math.floor(Math.random() * 10) % 2 === 0 ? [['17:15', '18:35']] : [['19:15', '21:01']];
 }
 
 const selectTimes = () => {

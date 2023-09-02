@@ -3,14 +3,19 @@ import type { Cell, HourAndMinute, MaybeRef, TimeRange } from '../types/appointm
 import {
   getDirtyCellsByIndex,
   getDirtyCellsByRange,
+  getInvalidRanges,
   getNeatCells,
   getTimes,
   isBlocked,
-  mergeRanges, previewSelectedTimes
+  isPast,
+  mergeRanges,
+  previewSelectedTimes,
 } from '../utils/date-fn';
-import { CellStatus } from '../utils/constants';
+import { CellStatus, WorkMode } from '../utils/constants';
 
 interface Props {
+  mode: WorkMode;
+  selectedDate: string;
   selectedTimes: TimeRange;
   startTime: HourAndMinute;
   endTime: HourAndMinute;
@@ -21,9 +26,9 @@ interface Props {
 }
 
 const useAppointment = (props: Props) => {
+  const dirtyIndices = new Set<number>();
   const selectedStartIndex = ref(-1);
   const selectedEndIndex = ref(-1);
-  const dirtyIndices = new Set<number>();
 
   const isSelected = computed(
     () => Array.isArray(props.selectedTimes) && props.selectedTimes[0] && props.selectedTimes[1],
@@ -33,7 +38,13 @@ const useAppointment = (props: Props) => {
 
   const occupiedRanges = computed(() => mergeRanges(props.occupied));
 
-  const invalidRanges = computed(() => mergeRanges(props.invalid));
+  const invalidRanges = computed(() => getInvalidRanges(
+    props.selectedDate,
+    times.value,
+    props.endTime,
+    occupiedRanges.value,
+    props.invalid,
+  ));
 
   const itemHeight = computed(() => `${props.height}rpx`);
 
@@ -54,6 +65,14 @@ const useAppointment = (props: Props) => {
 
     return res;
   });
+
+  const isMute = (cell: MaybeRef<Cell>) => {
+    if (props.mode === WorkMode.View) {
+      return true;
+    }
+
+    return isPast(times.value[unref(cell).index], props.selectedDate);
+  };
 
   const updateSelectedIndex = (startIndex: number, endIndex: number) => {
     selectedStartIndex.value = startIndex;
@@ -99,6 +118,7 @@ const useAppointment = (props: Props) => {
     selectedTimeDisplay,
     times,
     cells,
+    isMute,
     updateSelectedIndex,
     doExpandTime,
     doNarrowTime,

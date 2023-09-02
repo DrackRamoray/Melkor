@@ -27,18 +27,18 @@
         <view class="appointment__main" :style="{ gridTemplateRows: `repeat(${times.length}, ${itemHeight})` }">
           <template v-for="cell in cells" :key="`${cell.rowStart}-${cell.rowEnd}`">
             <view
-                v-if="cell.status === CellStatus.Idle"
-                class="radius-default appointment__cell"
-                :style="{ gridRowStart: cell.rowStart, gridRowEnd: cell.rowEnd }"
-                @click="expandTime(cell)"
+              v-if="cell.status === CellStatus.Idle"
+              class="radius-default appointment__cell"
+              :style="{ gridRowStart: cell.rowStart, gridRowEnd: cell.rowEnd }"
+              @click="expandTime(cell)"
             ></view>
             <view
-                v-if="cell.status === CellStatus.Selected"
-                class="radius-default appointment__cell appointment__cell--selected"
-                :style="{ gridRowStart: cell.rowStart, gridRowEnd: cell.rowEnd }"
+              v-if="cell.status === CellStatus.Selected"
+              class="radius-default appointment__cell appointment__cell--selected"
+              :style="{ gridRowStart: cell.rowStart, gridRowEnd: cell.rowEnd }"
             >
               <view
-                  class="color-white appointment__cell--preview"
+                class="color-white appointment__cell--preview"
               >
                 {{ selectedTimeDisplay }}
               </view>
@@ -51,9 +51,9 @@
               ></view>
             </view>
             <view
-                v-if="cell.status === CellStatus.Occupied"
-                class="radius-default appointment__cell appointment__cell--occupied"
-                :style="{ gridRowStart: cell.rowStart, gridRowEnd: cell.rowEnd }"
+              v-if="cell.status === CellStatus.Occupied"
+              class="radius-default appointment__cell appointment__cell--occupied"
+              :style="{ gridRowStart: cell.rowStart, gridRowEnd: cell.rowEnd }"
             >{{ occupiedText }}</view>
             <view
               v-if="cell.status === CellStatus.Invalid"
@@ -74,13 +74,14 @@
 import { ref } from 'vue';
 import type { Cell, HourAndMinute, TimeRange } from '../types/appointment';
 import WeekSwiper from './week-swiper.vue';
-import { CellStatus, WeekType } from '../utils/constants';
+import { CellStatus, WeekType, WorkMode } from '../utils/constants';
 import { showTime } from '../utils/date-fn';
 import useAppointment from '../hooks/use-appointment';
 
 interface Props {
   selectedDate: string;
   selectedTimes: TimeRange;
+  mode?: WorkMode;
   title?: string;
   // eslint-disable-next-line vue/require-default-prop
   startDate?: string;
@@ -108,6 +109,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  mode: WorkMode.Edit,
   title: '预约',
   startTime: '08:00',
   endTime: '23:00',
@@ -128,7 +130,7 @@ const { screenWidth, screenHeight  } = uni.getSystemInfoSync();
 
 const height = ref(screenHeight * 0.9 * 750 / screenWidth);
 
-const { cells, times, isSelected, itemHeight, itemLineHeight, selectedTimeDisplay, updateSelectedIndex, doExpandTime, doNarrowTime } = useAppointment(props);
+const { cells, times, isSelected, itemHeight, itemLineHeight, selectedTimeDisplay, isMute, updateSelectedIndex, doExpandTime, doNarrowTime } = useAppointment(props);
 
 const selectDate = (date: string) => {
   updateSelectedIndex(-1, -1);
@@ -138,13 +140,20 @@ const selectDate = (date: string) => {
 };
 
 const expandTime = (cell: Cell) => {
+  if (isMute(cell)) {
+    return;
+  }
+
   const [startTime, endTime] = doExpandTime(cell);
   emit('update:selected-times', [startTime, endTime]);
   emit('select-times');
 };
 
 const narrowTime = (cell: Cell, offset: number) => {
-  console.log(cell, offset);
+  if (isMute(cell)) {
+    return;
+  }
+
   const [startTime, endTime] = doNarrowTime(cell, offset);
   emit('update:selected-times', [startTime, endTime]);
   emit('select-times');
@@ -208,6 +217,6 @@ defineExpose({
   background-color: #03a9f4;
 }
 .appointment__cell--invalid {
-  background-color: #4e5969;
+  background-color: #c9cdd4;
 }
 </style>

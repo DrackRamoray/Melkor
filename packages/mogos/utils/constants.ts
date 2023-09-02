@@ -8,4 +8,10 @@ export enum CellStatus {
   Selected,
   Occupied,
   Invalid,
+  Expired
+}
+
+export enum WorkMode {
+  Edit = 1,
+  View = 2,
 }

@@ -3,6 +3,7 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import type { Cell, DateObj, HourAndMinute, Indices, TimeRange } from '../types/appointment';
 import { CellStatus } from './constants';
+import { unref } from 'vue';
 
 dayjs.extend(weekOfYear);
 dayjs.extend(isSameOrBefore);
@@ -68,6 +69,22 @@ export const isAfter = (cur: string, tar: string) => dayjs(cur).isAfter(tar);
 
 export const isSame = (cur: string, tar: string) => dayjs(cur).isSame(tar);
 
+export const isPast = (time: HourAndMinute, selectedDate: string) => {
+  const today = dayjs().format('YYYY-MM-DD');
+
+  if (isBefore(selectedDate, today)) {
+    return true;
+  }
+
+  if (isAfter(selectedDate, today)) {
+    return false;
+  }
+
+  const now = dayjs().format('HH:mm') as HourAndMinute;
+
+  return timeToNumber(time) <= timeToNumber(now);
+}
+
 export const isDisabled = (cur: string, start: string, end: string) =>
   isBefore(cur, start) || isAfter(cur, end);
 
@@ -85,7 +102,7 @@ export const getTimes = (
 ): HourAndMinute[] => {
   const start = timeToNumber(startTime);
   const end = timeToNumber(endTime);
-  const res = [];
+  const res: HourAndMinute[] = [];
 
   for (let i = start; i < end; i += interval) {
     res.push(numberToTime(i));
@@ -175,6 +192,32 @@ export const getNeatCells = (cells: Cell[], indices: Set<number>, times: HourAnd
       })
     }
   }
+}
+
+export const getInvalidRanges = (selectedDate: string, times: HourAndMinute[], endTime: HourAndMinute, occupiedRanges: TimeRange[], invalidRanges: TimeRange[]): TimeRange[] => {
+  const indices = new Set<number>;
+
+  for (const rng of occupiedRanges) {
+    const [startIndex, endIndex] = getTimeIndices(times, rng);
+    rangeNumber(indices, startIndex, endIndex);
+  }
+
+  const ranges: TimeRange[] = [];
+  const n = times.length;
+
+  for (let i = 0; i < n; i += 1) {
+    if (indices.has(i)) {
+      continue;
+    }
+
+    const cur = times[i];
+
+    if (isPast(cur, selectedDate)) {
+      ranges.push([times[i], i === n - 1 ? endTime : times[i + 1]]);
+    }
+  }
+
+  return mergeRanges([...ranges, ...invalidRanges]);
 }
 
 export const isBlocked = (cells: Cell[], startIndex: number, endIndex: number) => {
